@@ -1,0 +1,883 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quiz CRUD Manager</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1fr 2fr;
+      gap: 20px;
+    }
+
+    @media (max-width: 1024px) {
+      .container {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .card {
+      background: white;
+      border-radius: 10px;
+      padding: 24px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    }
+
+    h1 {
+      color: #333;
+      margin-bottom: 24px;
+      font-size: 24px;
+    }
+
+    h2 {
+      color: #555;
+      margin-bottom: 16px;
+      font-size: 18px;
+      border-bottom: 2px solid #667eea;
+      padding-bottom: 8px;
+    }
+
+    .form-group {
+      margin-bottom: 16px;
+    }
+
+    label {
+      display: block;
+      font-weight: 600;
+      margin-bottom: 6px;
+      color: #333;
+      font-size: 14px;
+    }
+
+    input, textarea, select {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      font-family: inherit;
+      font-size: 14px;
+      color: #333;
+    }
+
+    input:focus, textarea:focus, select:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
+
+    .button-group {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    button {
+      padding: 10px 16px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 14px;
+      transition: all 0.3s ease;
+    }
+
+    .btn-primary {
+      background: #667eea;
+      color: white;
+      flex: 1;
+    }
+
+    .btn-primary:hover {
+      background: #5568d3;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+    }
+
+    .btn-primary:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .btn-secondary {
+      background: #e9ecef;
+      color: #333;
+    }
+
+    .btn-secondary:hover {
+      background: #dee2e6;
+    }
+
+    .btn-danger {
+      background: #dc3545;
+      color: white;
+    }
+
+    .btn-danger:hover {
+      background: #c82333;
+    }
+
+    .btn-small {
+      padding: 6px 12px;
+      font-size: 12px;
+    }
+
+    .alert {
+      padding: 12px 16px;
+      border-radius: 6px;
+      margin-bottom: 16px;
+      font-size: 14px;
+    }
+
+    .alert.error {
+      background: #fee;
+      color: #c33;
+      border-left: 4px solid #c33;
+    }
+
+    .alert.success {
+      background: #efe;
+      color: #3c3;
+      border-left: 4px solid #3c3;
+    }
+
+    .alert.info {
+      background: #e7f3ff;
+      color: #0c5aa0;
+      border-left: 4px solid #2196F3;
+    }
+
+    .search-filter {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    @media (max-width: 768px) {
+      .search-filter {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .data-panel {
+      max-height: 600px;
+      overflow-y: auto;
+    }
+
+    .question-item {
+      background: #f8f9fa;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      padding: 16px;
+      margin-bottom: 12px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .question-item:hover {
+      border-color: #667eea;
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
+    }
+
+    .question-item.selected {
+      background: #e8ebff;
+      border-color: #667eea;
+    }
+
+    .question-id {
+      display: inline-block;
+      background: #667eea;
+      color: white;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-weight: 600;
+      font-size: 12px;
+      margin-right: 8px;
+    }
+
+    .question-text {
+      color: #333;
+      font-weight: 600;
+      margin: 8px 0;
+      word-break: break-word;
+    }
+
+    .question-meta {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin: 8px 0;
+      font-size: 13px;
+      color: #666;
+    }
+
+    .question-block {
+      display: inline-block;
+      background: #e7f3ff;
+      color: #0c5aa0;
+      padding: 2px 8px;
+      border-radius: 3px;
+    }
+
+    .answer-preview {
+      font-size: 13px;
+      color: #666;
+      margin-top: 8px;
+      padding: 8px;
+      background: white;
+      border-radius: 4px;
+    }
+
+    .answer-preview strong {
+      color: #3c3;
+    }
+
+    .question-actions {
+      display: flex;
+      gap: 6px;
+      margin-top: 12px;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    @media (max-width: 768px) {
+      .form-row {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .stats {
+      background: #f8f9fa;
+      padding: 12px;
+      border-radius: 6px;
+      margin-bottom: 16px;
+      font-size: 13px;
+      color: #666;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 40px 20px;
+      color: #999;
+    }
+
+    .empty-state-icon {
+      font-size: 48px;
+      margin-bottom: 12px;
+    }
+
+    input[type="text"].readonly {
+      background: #f8f9fa;
+      color: #999;
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .modal.show {
+      display: flex;
+    }
+
+    .modal-content {
+      background: white;
+      padding: 24px;
+      border-radius: 10px;
+      max-width: 400px;
+      width: 100%;
+    }
+
+    .modal-content h3 {
+      margin-bottom: 16px;
+      color: #333;
+    }
+
+    .modal-buttons {
+      display: flex;
+      gap: 8px;
+      justify-content: flex-end;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div style="text-align:right;margin-bottom:12px;"><a href="md-to-quiz-json.html" style="border-radius: 10px;padding: 10px;background-color: white;color:#667eea;text-decoration:none;font-weight:600;">Convert MD → Quiz JSON</a></div>
+  <div style="text-align:right;margin-bottom:12px;"><a href="excel-converter.html" style="border-radius: 10px;padding: 10px;background-color: white;color:#667eea;text-decoration:none;font-weight:600;">Convert Excel → Quiz JSON</a></div>
+  <div style="text-align:right;margin-bottom:12px;"><a href="json-to-excel.html" style="border-radius: 10px;padding: 10px;background-color: white;color:#667eea;text-decoration:none;font-weight:600;">Convert JSON → Excel</a></div>
+  <div class="container">
+    <!-- Left Panel: Form -->
+    <div class="card">
+      <h1>➕ Add/Edit Question</h1>
+      <div id="formAlert"></div>
+
+      <form id="quizForm">
+        <div class="form-group">
+          <label>ID (Auto-generated)</label>
+          <input type="text" id="idField" class="readonly" readonly>
+        </div>
+
+        <div class="form-group">
+          <label>Question *</label>
+          <textarea id="questionField" placeholder="Enter question text" required></textarea>
+          <small id="questionError" style="color: #c33; display: none;"></small>
+        </div>
+
+        <div class="form-group">
+          <label>Right Answer *</label>
+          <textarea id="rightAnswerField" placeholder="Enter the correct answer" required></textarea>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Wrong Answer 1 *</label>
+            <textarea id="wrong1Field" placeholder="Enter wrong answer" required></textarea>
+          </div>
+          <div class="form-group">
+            <label>Wrong Answer 2 *</label>
+            <textarea id="wrong2Field" placeholder="Enter wrong answer" required></textarea>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Wrong Answer 3 *</label>
+          <textarea id="wrong3Field" placeholder="Enter wrong answer" required></textarea>
+        </div>
+
+        <div class="form-group">
+          <label>Block (Optional)</label>
+          <input type="text" id="blockField" placeholder="e.g., Chapter 1, Section A">
+        </div>
+
+        <div class="button-group">
+          <button type="submit" class="btn-primary" id="submitBtn">Add Question</button>
+          <button type="reset" class="btn-secondary">Clear</button>
+          <button type="button" class="btn-secondary" id="cancelEditBtn" style="display: none;">Cancel Edit</button>
+        </div>
+      </form>
+
+      <hr style="margin: 24px 0; border: none; border-top: 1px solid #ddd;">
+      <h2 style="margin-top: 0;">Data Management</h2>
+
+      <div class="button-group">
+        <button type="button" class="btn-primary" id="importBtn" style="flex: 1;">📥 Import JSON</button>
+        <button type="button" class="btn-primary" id="exportBtn" style="flex: 1;">📤 Export JSON</button>
+      </div>
+
+      <div class="button-group" style="margin-top:12px;">
+        <button type="button" class="btn-danger" id="deleteAllBtn" style="flex: 1;">🗑️ Delete All</button>
+        <button type="button" class="btn-secondary" id="bulkBlockBtn" style="flex: 1;">✏️ Change Block (filtered)</button>
+      </div>
+
+      <input id="importFile" type="file" accept=".json" style="display: none;">
+    </div>
+
+    <!-- Right Panel: Data Display -->
+    <div class="card">
+      <h1>📋 Questions</h1>
+
+      <div class="stats">
+        <strong>Total:</strong> <span id="totalCount">0</span> | 
+        <strong>Filtered:</strong> <span id="filteredCount">0</span>
+        <span style="float: right; font-size: 12px; color: #999;" id="lastExport"></span>
+      </div>
+
+      <div class="search-filter">
+        <div class="form-group">
+          <input type="text" id="searchInput" placeholder="Search by ID or question...">
+        </div>
+        <div class="form-group">
+          <select id="blockFilter">
+            <option value="">All Blocks</option>
+          </select>
+        </div>
+      </div>
+
+      <div id="dataPanel" class="data-panel"></div>
+    </div>
+  </div>
+
+  <!-- Delete Confirmation Modal -->
+  <div id="deleteModal" class="modal">
+    <div class="modal-content">
+      <h3>Delete Question?</h3>
+      <p>Are you sure you want to delete this question? This action cannot be undone.</p>
+      <div class="modal-buttons">
+        <button class="btn-secondary" id="cancelDeleteBtn">Cancel</button>
+        <button class="btn-danger" id="confirmDeleteBtn">Delete</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    class QuizCRUD {
+      constructor() {
+        this.data = [];
+        this.editingId = null;
+        this.deleteTargetId = null;
+        this.filteredData = [];
+
+        this.form = document.getElementById('quizForm');
+        this.idField = document.getElementById('idField');
+        this.questionField = document.getElementById('questionField');
+        this.rightAnswerField = document.getElementById('rightAnswerField');
+        this.wrong1Field = document.getElementById('wrong1Field');
+        this.wrong2Field = document.getElementById('wrong2Field');
+        this.wrong3Field = document.getElementById('wrong3Field');
+        this.blockField = document.getElementById('blockField');
+        this.submitBtn = document.getElementById('submitBtn');
+        this.cancelEditBtn = document.getElementById('cancelEditBtn');
+        this.formAlert = document.getElementById('formAlert');
+        this.questionError = document.getElementById('questionError');
+
+        this.dataPanel = document.getElementById('dataPanel');
+        this.searchInput = document.getElementById('searchInput');
+        this.blockFilter = document.getElementById('blockFilter');
+        this.totalCount = document.getElementById('totalCount');
+        this.filteredCount = document.getElementById('filteredCount');
+
+        this.deleteModal = document.getElementById('deleteModal');
+        this.cancelDeleteBtn = document.getElementById('cancelDeleteBtn');
+        this.confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
+
+        this.importBtn = document.getElementById('importBtn');
+        this.importFile = document.getElementById('importFile');
+        this.exportBtn = document.getElementById('exportBtn');
+        this.deleteAllBtn = document.getElementById('deleteAllBtn');
+        this.bulkBlockBtn = document.getElementById('bulkBlockBtn');
+        this.lastExport = document.getElementById('lastExport');
+
+        this.init();
+      }
+
+      init() {
+        this.loadData();
+        this.attachEventListeners();
+        this.render();
+      }
+
+      loadData() {
+        const stored = localStorage.getItem('quizData');
+        this.data = stored ? JSON.parse(stored) : [];
+      }
+
+      saveData() {
+        localStorage.setItem('quizData', JSON.stringify(this.data));
+      }
+
+      attachEventListeners() {
+        this.form.addEventListener('submit', (e) => this.handleSubmit(e));
+        this.cancelEditBtn.addEventListener('click', () => this.cancelEdit());
+        this.searchInput.addEventListener('input', () => this.render());
+        this.blockFilter.addEventListener('change', () => this.render());
+        this.cancelDeleteBtn.addEventListener('click', () => this.closeDeleteModal());
+        this.confirmDeleteBtn.addEventListener('click', () => this.confirmDelete());
+        this.importBtn.addEventListener('click', () => this.importFile.click());
+        this.importFile.addEventListener('change', (e) => this.handleImport(e));
+        this.exportBtn.addEventListener('click', () => this.handleExport());
+        this.deleteAllBtn.addEventListener('click', () => this.handleDeleteAll());
+        this.bulkBlockBtn.addEventListener('click', () => this.handleBulkBlock());
+      }
+
+      handleSubmit(e) {
+        e.preventDefault();
+        this.formAlert.innerHTML = '';
+        this.questionError.style.display = 'none';
+
+        const question = this.questionField.value.trim();
+        const rightAnswer = this.rightAnswerField.value.trim();
+        const wrong1 = this.wrong1Field.value.trim();
+        const wrong2 = this.wrong2Field.value.trim();
+        const wrong3 = this.wrong3Field.value.trim();
+        const block = this.blockField.value.trim();
+
+        // Validation
+        if (!question) {
+          this.showFormAlert('Question cannot be empty', 'error');
+          return;
+        }
+
+        if (!rightAnswer || !wrong1 || !wrong2 || !wrong3) {
+          this.showFormAlert('All answer fields are required', 'error');
+          return;
+        }
+
+        // Check for duplicate questions (excluding current edit)
+        const isDuplicate = this.data.some(
+          (item) => item.Question.toLowerCase() === question.toLowerCase() && item.id !== this.editingId
+        );
+        if (isDuplicate) {
+          this.questionError.textContent = 'This question already exists!';
+          this.questionError.style.display = 'block';
+          this.showFormAlert('Question already exists', 'error');
+          return;
+        }
+
+        const item = {
+          id: this.editingId || this.generateId(),
+          Question: question,
+          RightAnswer: rightAnswer,
+          Wrong1: wrong1,
+          Wrong2: wrong2,
+          Wrong3: wrong3,
+          Block: block || null,
+        };
+
+        if (this.editingId) {
+          // Update
+          const index = this.data.findIndex((d) => d.id === this.editingId);
+          if (index >= 0) {
+            this.data[index] = item;
+            this.showFormAlert('Question updated!', 'success');
+          }
+          this.cancelEdit();
+        } else {
+          // Create
+          this.data.push(item);
+          this.showFormAlert('Question added!', 'success');
+          this.form.reset();
+          this.idField.value = '';
+        }
+
+        this.saveData();
+        this.render();
+      }
+
+      generateId() {
+        return this.data.length > 0 ? Math.max(...this.data.map((d) => d.id)) + 1 : 1;
+      }
+
+      editItem(id) {
+        const item = this.data.find((d) => d.id === id);
+        if (!item) return;
+
+        this.editingId = id;
+        this.idField.value = item.id;
+        this.questionField.value = item.Question;
+        this.rightAnswerField.value = item.RightAnswer;
+        this.wrong1Field.value = item.Wrong1;
+        this.wrong2Field.value = item.Wrong2;
+        this.wrong3Field.value = item.Wrong3;
+        this.blockField.value = item.Block || '';
+        this.submitBtn.textContent = 'Update Question';
+        this.cancelEditBtn.style.display = 'inline-block';
+        this.formAlert.innerHTML = '<div class="alert info">Editing mode</div>';
+
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+
+      cancelEdit() {
+        this.editingId = null;
+        this.form.reset();
+        this.idField.value = '';
+        this.submitBtn.textContent = 'Add Question';
+        this.cancelEditBtn.style.display = 'none';
+        this.formAlert.innerHTML = '';
+        this.questionError.style.display = 'none';
+      }
+
+      deleteItem(id) {
+        this.deleteTargetId = id;
+        this.deleteModal.classList.add('show');
+      }
+
+      confirmDelete() {
+        this.data = this.data.filter((d) => d.id !== this.deleteTargetId);
+        this.saveData();
+        this.closeDeleteModal();
+        if (this.editingId === this.deleteTargetId) {
+          this.cancelEdit();
+        }
+        this.render();
+        this.showFormAlert('Question deleted!', 'success');
+      }
+
+      closeDeleteModal() {
+        this.deleteModal.classList.remove('show');
+        this.deleteTargetId = null;
+      }
+
+      showFormAlert(message, type) {
+        this.formAlert.innerHTML = `<div class="alert ${type}">${message}</div>`;
+      }
+
+      handleImport(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          try {
+            const imported = JSON.parse(event.target.result);
+
+            // Validate imported data structure
+            if (!Array.isArray(imported)) {
+              this.showFormAlert('Invalid JSON: Expected an array of questions', 'error');
+              return;
+            }
+
+            // Validate each item and auto-generate IDs if missing
+            const validItems = imported
+              .filter((item) => {
+                return (
+                  typeof item.Question === 'string' &&
+                  typeof item.RightAnswer === 'string' &&
+                  typeof item.Wrong1 === 'string' &&
+                  typeof item.Wrong2 === 'string' &&
+                  typeof item.Wrong3 === 'string' &&
+                  (item.Block === null || item.Block === '' || typeof item.Block === 'string')
+                );
+              })
+              .map((item) => ({
+                ...item,
+                // Auto-generate ID if missing or invalid
+                id: typeof item.id === 'number' ? item.id : undefined,
+                Block: item.Block || null,
+              }));
+
+            if (validItems.length === 0) {
+              this.showFormAlert('No valid questions found in the JSON file', 'error');
+              return;
+            }
+
+            if (validItems.length < imported.length) {
+              this.showFormAlert(
+                `Importing ${validItems.length} out of ${imported.length} questions. Some items were skipped due to missing required fields.`,
+                'info'
+              );
+            }
+
+            // Merge with existing data or replace
+            if (this.data.length > 0) {
+              const confirmReplace = confirm(
+                `You have ${this.data.length} existing questions.\n\nDo you want to:\nOK = Replace all with imported data\nCancel = Merge with existing data`
+              );
+              if (confirmReplace) {
+                this.data = this.assignIds(validItems);
+              } else {
+                // Merge: reassign IDs to avoid conflicts
+                const maxId = Math.max(...this.data.map((d) => d.id), 0);
+                const merged = validItems.map((item, index) => ({
+                  ...item,
+                  id: item.id || maxId + index + 1,
+                }));
+                this.data = [...this.data, ...merged];
+              }
+            } else {
+              this.data = this.assignIds(validItems);
+            }
+
+            this.saveData();
+            this.cancelEdit();
+            this.render();
+            this.showFormAlert('✓ Data imported successfully!', 'success');
+          } catch (error) {
+            this.showFormAlert(`Error parsing JSON: ${error.message}`, 'error');
+          }
+        };
+
+        reader.readAsText(file);
+        this.importFile.value = '';
+      }
+
+      assignIds(items) {
+        let maxId = this.data.length > 0 ? Math.max(...this.data.map((d) => d.id), 0) : 0;
+        return items.map((item) => {
+          if (item.id === undefined) {
+            item.id = ++maxId;
+          } else {
+            maxId = Math.max(maxId, item.id);
+          }
+          return item;
+        });
+      }
+
+      handleExport() {
+        if (this.data.length === 0) {
+          this.showFormAlert('No data to export', 'error');
+          return;
+        }
+
+        const filename = `quiz-data-${new Date().toISOString().split('T')[0]}.json`;
+        const blob = new Blob([JSON.stringify(this.data, null, 2)], {
+          type: 'application/json',
+        });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+
+        this.lastExport.textContent = `Last export: ${new Date().toLocaleTimeString()}`;
+        this.showFormAlert(`✓ Exported ${this.data.length} questions to ${filename}`, 'success');
+      }
+
+      handleDeleteAll() {
+        if (this.data.length === 0) {
+          this.showFormAlert('Nothing to delete', 'info');
+          return;
+        }
+        if (confirm('Are you sure you want to delete ALL questions? This cannot be undone.')) {
+          this.data = [];
+          this.saveData();
+          this.cancelEdit();
+          this.render();
+          this.showFormAlert('All questions deleted', 'success');
+        }
+      }
+
+      handleBulkBlock() {
+        const filtered = this.getFilteredData();
+        if (filtered.length === 0) {
+          this.showFormAlert('No questions match current filter/search', 'error');
+          return;
+        }
+        const newBlock = prompt('Enter new block value (empty for none):', '');
+        if (newBlock === null) return; // cancelled
+        filtered.forEach(item => { item.Block = newBlock.trim() || null; });
+        this.saveData();
+        this.render();
+        this.showFormAlert(`Updated block for ${filtered.length} questions`, 'success');
+      }
+
+      getFilteredData() {
+        let filtered = this.data;
+
+        const search = this.searchInput.value.toLowerCase();
+        if (search) {
+          filtered = filtered.filter(
+            (item) =>
+              item.id.toString().includes(search) ||
+              item.Question.toLowerCase().includes(search)
+          );
+        }
+
+        const blockFilter = this.blockFilter.value;
+        if (blockFilter) {
+          filtered = filtered.filter((item) => item.Block === blockFilter);
+        }
+
+        return filtered;
+      }
+
+      populateBlockFilter() {
+        const blocks = [...new Set(this.data.map((d) => d.Block).filter(Boolean))];
+        blocks.sort();
+
+        this.blockFilter.innerHTML = '<option value="">All Blocks</option>';
+        blocks.forEach((block) => {
+          const option = document.createElement('option');
+          option.value = block;
+          option.textContent = block;
+          this.blockFilter.appendChild(option);
+        });
+      }
+
+      render() {
+        this.filteredData = this.getFilteredData();
+        this.totalCount.textContent = this.data.length;
+        this.filteredCount.textContent = this.filteredData.length;
+        this.populateBlockFilter();
+
+        if (this.filteredData.length === 0) {
+          this.dataPanel.innerHTML = `
+            <div class="empty-state">
+              <div class="empty-state-icon">📭</div>
+              <p>${this.data.length === 0 ? 'No questions yet. Add one to get started!' : 'No questions match your search or filter.'}</p>
+            </div>
+          `;
+          return;
+        }
+
+        this.dataPanel.innerHTML = this.filteredData
+          .map((item) => this.renderItem(item))
+          .join('');
+
+        // Attach click handlers
+        this.filteredData.forEach((item) => {
+          const editBtn = document.getElementById(`edit-${item.id}`);
+          const deleteBtn = document.getElementById(`delete-${item.id}`);
+          if (editBtn) editBtn.addEventListener('click', () => this.editItem(item.id));
+          if (deleteBtn) deleteBtn.addEventListener('click', () => this.deleteItem(item.id));
+        });
+      }
+
+      renderItem(item) {
+        const blockBadge = item.Block ? `<span class="question-block">${this.escapeHtml(item.Block)}</span>` : '';
+        return `
+          <div class="question-item">
+            <div>
+              <span class="question-id">#${item.id}</span>
+              ${blockBadge}
+            </div>
+            <div class="question-text">${this.escapeHtml(item.Question)}</div>
+            <div class="answer-preview">
+              <strong>✓ ${this.escapeHtml(item.RightAnswer)}</strong><br>
+              <small>✗ ${this.escapeHtml(item.Wrong1)}</small><br>
+              <small>✗ ${this.escapeHtml(item.Wrong2)}</small><br>
+              <small>✗ ${this.escapeHtml(item.Wrong3)}</small>
+            </div>
+            <div class="question-actions">
+              <button class="btn-primary btn-small" id="edit-${item.id}">Edit</button>
+              <button class="btn-danger btn-small" id="delete-${item.id}">Delete</button>
+            </div>
+          </div>
+        `;
+      }
+
+      escapeHtml(text) {
+        const map = {
+          '&': '&amp;',
+          '<': '&lt;',
+          '>': '&gt;',
+          '"': '&quot;',
+          "'": '&#039;',
+        };
+        return text.replace(/[&<>"']/g, (m) => map[m]);
+      }
+    }
+
+    // Initialize on page load
+    document.addEventListener('DOMContentLoaded', () => {
+      new QuizCRUD();
+    });
+  </script>
+</body>
+</html>
