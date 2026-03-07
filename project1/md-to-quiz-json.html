@@ -33,6 +33,11 @@
 </pre>
     </div>
 
+    <div class="row">
+      <label for="fileInput">Upload Markdown file (.md)</label>
+      <input type="file" id="fileInput" accept=".md,.markdown">
+    </div>
+
     <label for="md">Markdown input</label>
     <textarea id="md" placeholder="Paste Markdown here..."></textarea>
 
@@ -166,6 +171,16 @@
     const clearBtn = document.getElementById('clear');
     const genId = document.getElementById('genId');
     const errBox = document.getElementById('errors');
+    const fileInput = document.getElementById('fileInput');
+
+    fileInput.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = (e) => mdBox.value = e.target.result;
+        reader.readAsText(file);
+      }
+    });
 
     convertBtn.addEventListener('click', ()=>{
       errBox.textContent = '';
