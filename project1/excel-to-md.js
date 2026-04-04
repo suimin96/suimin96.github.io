@@ -174,38 +174,30 @@ class ExcelToMdConverter {
       const dateFormat = document.getElementById('excel-md-dateFormat').value;
       const numberFormat = document.getElementById('excel-md-numberFormat').value;
 
-      let jsonData = [];
-
-      if (useHeader && this.data.length > 1) {
-        const headers = this.data[0];
-        const rows = this.data.slice(1);
-
-        jsonData = rows.map(row => {
-          const obj = {};
-          headers.forEach((header, index) => {
-            const value = row[index];
-            if (includeEmpty || value !== '' && value !== null && value !== undefined) {
-              obj[header || `Column${index + 1}`] = this.parseValue(value, numberFormat, dateFormat);
-            }
-          });
-          return obj;
-        });
-      } else {
-        jsonData = this.data.map((row, rowIndex) => {
-          const obj = {};
-          row.forEach((cell, colIndex) => {
-            const key = `field${colIndex + 1}`;
-            if (includeEmpty || cell !== '' && cell !== null && cell !== undefined) {
-              obj[key] = this.parseValue(cell, numberFormat, dateFormat);
-            }
-          });
-          return obj;
-        });
+      let rows = this.data;
+      if (useHeader && this.data.length > 0) {
+        rows = this.data.slice(1);
       }
 
-      // Normalize to expected format
-      const normalizedData = this.normalizeData(jsonData);
-      const md = this.convertToMarkdown(normalizedData);
+      let jsonData = rows.map(row => {
+        const parsedRow = row.map(cell => this.parseValue(cell, numberFormat, dateFormat));
+        return {
+          question: String(parsedRow[0] || ''),
+          answer1: String(parsedRow[1] || ''),
+          answer2: String(parsedRow[2] || ''),
+          answer3: String(parsedRow[3] || ''),
+          answer4: String(parsedRow[4] || ''),
+          block: String(parsedRow[5] || 'General')
+        };
+      }).filter(item => item.question.trim() !== '');
+
+      console.log('jsonData:', jsonData);
+      if (jsonData.length === 0) {
+        this.showAlert('No valid data found. Check that your Excel has at least 6 columns in order: question, answer1, answer2, answer3, answer4, block.', 'error');
+        return;
+      }
+      const md = this.convertToMarkdown(jsonData);
+      console.log('md:', md);
       this.displayOutput(md);
       this.mdOutput = md;
       this.showAlert('Conversion successful!', 'success');
@@ -220,17 +212,16 @@ class ExcelToMdConverter {
       for(const k of Object.keys(obj)) lower[k.toLowerCase()] = obj[k];
       return {
         question: String(lower['question'] || lower['field1'] || ''),
-        rightanswer: String(lower['rightanswer'] || lower['right_answer'] || lower['field2'] || ''),
-        wrong1: String(lower['wrong1'] || lower['wrong_1'] || lower['field3'] || ''),
-        wrong2: String(lower['wrong2'] || lower['wrong_2'] || lower['field4'] || ''),
-        wrong3: String(lower['wrong3'] || lower['wrong_3'] || lower['field5'] || ''),
+        answer1: String(lower['answer1'] || lower['field2'] || ''),
+        answer2: String(lower['answer2'] || lower['field3'] || ''),
+        answer3: String(lower['answer3'] || lower['field4'] || ''),
+        answer4: String(lower['answer4'] || lower['field5'] || ''),
         block: String(lower['block'] || lower['field6'] || 'General')
       };
-    }).filter(item => item.question && item.rightanswer);
+    }).filter(item => item.question && item.answer1 && item.answer2 && item.answer3 && item.answer4);
   }
 
   convertToMarkdown(items) {
-    // Group by block
     const blocks = {};
     items.forEach(item => {
       const block = item.block || 'General';
@@ -243,10 +234,10 @@ class ExcelToMdConverter {
       md += `# ${blockName}\n\n`;
       blocks[blockName].forEach(item => {
         md += `## ${item.question}\n`;
-        md += `- + ${item.rightanswer}\n`;
-        if(item.wrong1) md += `- ${item.wrong1}\n`;
-        if(item.wrong2) md += `- ${item.wrong2}\n`;
-        if(item.wrong3) md += `- ${item.wrong3}\n`;
+        if(item.answer1.trim()) md += `(a) ${item.answer1}\n`;
+        if(item.answer2.trim()) md += `(b) ${item.answer2}\n`;
+        if(item.answer3.trim()) md += `(c) ${item.answer3}\n`;
+        if(item.answer4.trim()) md += `(d) ${item.answer4}\n`;
         md += '\n';
       });
       md += '\n';
@@ -335,7 +326,3 @@ class ExcelToMdConverter {
     return div.innerHTML;
   }
 }
-
-waitForXLSX(() => {
-  new ExcelToMdConverter();
-});

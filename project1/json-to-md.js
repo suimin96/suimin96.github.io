@@ -10,7 +10,7 @@ const jsonMdPreview = document.getElementById('json-md-preview');
 const jsonMdAutoId = document.getElementById('json-md-autoId');
 const jsonMdDownloadBtn = document.getElementById('json-md-downloadBtn');
 
-const jsonMdHEADERS = ['id','question','rightanswer','wrong1','wrong2','wrong3','block'];
+const jsonMdHEADERS = ['id','question','answer1','answer2','answer3','answer4','block'];
 
 jsonMdFileInput.addEventListener('change', (e)=>{
   const f = e.target.files[0];
@@ -81,16 +81,16 @@ function jsonMdParseAndNormalize(){
     if(typeof obj !== 'object' || obj === null) continue;
     const lower = {};
     for(const k of Object.keys(obj)) lower[k.toLowerCase()] = obj[k];
-    if(typeof lower['question'] !== 'string' || typeof lower['rightanswer'] !== 'string' || typeof lower['wrong1'] !== 'string' || typeof lower['wrong2'] !== 'string' || typeof lower['wrong3'] !== 'string'){
+    if(typeof lower['question'] !== 'string' || typeof lower['answer1'] !== 'string' || typeof lower['answer2'] !== 'string' || typeof lower['answer3'] !== 'string' || typeof lower['answer4'] !== 'string'){
       continue;
     }
     const entry = {
       id: (typeof lower['id'] === 'number') ? lower['id'] : undefined,
       question: lower['question'],
-      rightanswer: lower['rightanswer'],
-      wrong1: lower['wrong1'],
-      wrong2: lower['wrong2'],
-      wrong3: lower['wrong3'],
+      answer1: lower['answer1'],
+      answer2: lower['answer2'],
+      answer3: lower['answer3'],
+      answer4: lower['answer4'],
       block: (typeof lower['block'] === 'string') ? lower['block'] : (lower['block'] == null ? '' : String(lower['block']))
     };
     items.push(entry);
@@ -103,7 +103,6 @@ function jsonMdParseAndNormalize(){
 }
 
 function jsonMdConvertToMarkdown(items){
-  // Group by block
   const blocks = {};
   items.forEach(item => {
     const block = item.block || 'General';
@@ -116,10 +115,10 @@ function jsonMdConvertToMarkdown(items){
     md += `# ${blockName}\n\n`;
     blocks[blockName].forEach(item => {
       md += `## ${item.question}\n`;
-      md += `- + ${item.rightanswer}\n`;
-      if(item.wrong1) md += `- ${item.wrong1}\n`;
-      if(item.wrong2) md += `- ${item.wrong2}\n`;
-      if(item.wrong3) md += `- ${item.wrong3}\n`;
+      if(item.answer1.trim()) md += `(a) ${item.answer1}\n`;
+      if(item.answer2.trim()) md += `(b) ${item.answer2}\n`;
+      if(item.answer3.trim()) md += `(c) ${item.answer3}\n`;
+      if(item.answer4.trim()) md += `(d) ${item.answer4}\n`;
       md += '\n';
     });
     md += '\n';
