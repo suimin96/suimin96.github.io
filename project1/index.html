@@ -4,218 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Quiz Tools Combined</title>
-  <style>
-    /* Tab styles */
-    .tabs {
-      display: flex;
-      justify-content: center;
-      margin-bottom: 20px;
-      background: #f8f9fa;
-      padding: 10px;
-      border-radius: 8px;
-    }
-    .tab-button {
-      padding: 10px 20px;
-      border: none;
-      background: none;
-      cursor: pointer;
-      font-size: 16px;
-      border-radius: 4px;
-      transition: background 0.3s;
-    }
-    .tab-button.active {
-      background: #667eea;
-      color: white;
-    }
-    .tab-content {
-      display: none;
-    }
-    .tab-content.active {
-      display: block;
-    }
-
-    /* Common styles */
-    body {
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
-      background: #f6f8fb;
-      margin: 0;
-      padding: 20px;
-    }
-    .card {
-      background: white;
-      border-radius: 8px;
-      padding: 20px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-      margin-bottom: 20px;
-    }
-    button {
-      padding: 8px 16px;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-      font-size: 14px;
-    }
-    .btn-primary { background: #667eea; color: white; }
-    .btn-secondary { background: #e9ecef; color: #333; }
-    .btn-danger { background: #dc3545; color: white; }
-    textarea, input, select {
-      width: 100%;
-      padding: 8px;
-      border: 1px solid #ddd;
-      border-radius: 4px;
-      font-family: inherit;
-    }
-
-    /* Quiz Manager styles */
-    .quiz-container {
-      max-width: 1400px;
-      margin: 0 auto;
-      display: grid;
-      grid-template-columns: 1fr 2fr;
-      gap: 20px;
-    }
-    @media (max-width: 1024px) {
-      .quiz-container { grid-template-columns: 1fr; }
-    }
-    .quiz-card {
-      background: white;
-      border-radius: 10px;
-      padding: 24px;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-    }
-    .quiz-h1 { color: #333; margin-bottom: 24px; font-size: 24px; }
-    .quiz-h2 { color: #555; margin-bottom: 16px; font-size: 18px; border-bottom: 2px solid #667eea; padding-bottom: 8px; }
-    .quiz-form-group { margin-bottom: 16px; }
-    .quiz-label { display: block; font-weight: 600; margin-bottom: 6px; color: #333; font-size: 14px; }
-    .quiz-input, .quiz-textarea, .quiz-select { width: 100%; padding: 10px 12px; border: 1px solid #ddd; border-radius: 6px; font-family: inherit; font-size: 14px; color: #333; }
-    .quiz-input:focus, .quiz-textarea:focus, .quiz-select:focus { outline: none; border-color: #667eea; box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1); }
-    .quiz-textarea { resize: vertical; min-height: 80px; }
-    .quiz-button-group { display: flex; gap: 8px; flex-wrap: wrap; }
-    .quiz-btn-primary { background: #667eea; color: white; flex: 1; padding: 10px 16px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 14px; transition: all 0.3s ease; }
-    .quiz-btn-primary:hover { background: #5568d3; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3); }
-    .quiz-btn-primary:disabled { background: #ccc; cursor: not-allowed; transform: none; }
-    .quiz-btn-secondary { background: #e9ecef; color: #333; }
-    .quiz-btn-secondary:hover { background: #dee2e6; }
-    .quiz-btn-danger { background: #dc3545; color: white; }
-    .quiz-btn-danger:hover { background: #c82333; }
-    .quiz-btn-small { padding: 6px 12px; font-size: 12px; }
-    .quiz-alert { padding: 12px 16px; border-radius: 6px; margin-bottom: 16px; font-size: 14px; }
-    .quiz-alert.error { background: #fee; color: #c33; border-left: 4px solid #c33; }
-    .quiz-alert.success { background: #efe; color: #3c3; border-left: 4px solid #3c3; }
-    .quiz-alert.info { background: #e7f3ff; color: #0c5aa0; border-left: 4px solid #2196F3; }
-    .quiz-search-filter { display: grid; grid-template-columns: 2fr 1fr; gap: 12px; margin-bottom: 16px; }
-    @media (max-width: 768px) { .quiz-search-filter { grid-template-columns: 1fr; } }
-    .quiz-data-panel { max-height: 600px; overflow-y: auto; }
-    .quiz-question-item { background: #f8f9fa; border: 1px solid #ddd; border-radius: 6px; padding: 16px; margin-bottom: 12px; cursor: pointer; transition: all 0.3s ease; }
-    .quiz-question-item:hover { border-color: #667eea; box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15); }
-    .quiz-question-item.selected { background: #e8ebff; border-color: #667eea; }
-    .quiz-question-id { display: inline-block; background: #667eea; color: white; padding: 4px 8px; border-radius: 4px; font-weight: 600; font-size: 12px; margin-right: 8px; }
-    .quiz-question-text { color: #333; font-weight: 600; margin: 8px 0; word-break: break-word; }
-    .quiz-question-meta { display: flex; gap: 12px; flex-wrap: wrap; margin: 8px 0; font-size: 13px; color: #666; }
-    .quiz-question-block { display: inline-block; background: #e7f3ff; color: #0c5aa0; padding: 2px 8px; border-radius: 3px; }
-    .quiz-answer-preview { font-size: 13px; color: #666; margin-top: 8px; padding: 8px; background: white; border-radius: 4px; }
-    .quiz-answer-preview strong { color: #3c3; }
-    .quiz-question-actions { display: flex; gap: 6px; margin-top: 12px; }
-    .quiz-form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-    @media (max-width: 768px) { .quiz-form-row { grid-template-columns: 1fr; } }
-    .quiz-stats { background: #f8f9fa; padding: 12px; border-radius: 6px; margin-bottom: 16px; font-size: 13px; color: #666; }
-    .quiz-empty-state { text-align: center; padding: 40px 20px; color: #999; }
-    .quiz-empty-state-icon { font-size: 48px; margin-bottom: 12px; }
-    .quiz-input.readonly { background: #f8f9fa; color: #999; }
-    .quiz-modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.5); z-index: 1000; justify-content: center; align-items: center; }
-    .quiz-modal.show { display: flex; }
-    .quiz-modal-content { background: white; padding: 24px; border-radius: 10px; max-width: 400px; width: 100%; }
-    .quiz-modal-content h3 { margin-bottom: 16px; color: #333; }
-    .quiz-modal-buttons { display: flex; gap: 8px; justify-content: flex-end; margin-top: 20px; }
-
-    /* Excel to JSON styles */
-    .excel-container { background: white; border-radius: 10px; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3); max-width: 900px; margin: 0 auto; padding: 40px; }
-    .excel-h1 { color: #333; margin-bottom: 10px; text-align: center; }
-    .excel-subtitle { text-align: center; color: #666; margin-bottom: 30px; font-size: 14px; }
-    .excel-upload-section { background: #f8f9fa; border: 2px dashed #667eea; border-radius: 8px; padding: 40px; text-align: center; margin-bottom: 30px; cursor: pointer; transition: all 0.3s ease; }
-    .excel-upload-section:hover { background: #f0f2ff; border-color: #764ba2; }
-    .excel-upload-section.dragover { background: #e8ebff; border-color: #764ba2; }
-    .excel-fileInput { display: none; }
-    .excel-upload-icon { font-size: 48px; margin-bottom: 15px; }
-    .excel-upload-text { color: #333; font-size: 16px; margin-bottom: 8px; }
-    .excel-upload-hint { color: #999; font-size: 13px; }
-    .excel-options-section { background: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 30px; }
-    .excel-options-title { font-weight: 600; color: #333; margin-bottom: 15px; }
-    .excel-option-group { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 15px; }
-    @media (max-width: 600px) { .excel-option-group { grid-template-columns: 1fr; } }
-    .excel-checkbox-option { display: flex; align-items: center; gap: 8px; }
-    .excel-checkbox-option input[type="checkbox"] { cursor: pointer; width: 18px; height: 18px; }
-    .excel-checkbox-option label { cursor: pointer; color: #555; font-size: 14px; }
-    .excel-select-group { display: flex; flex-direction: column; gap: 6px; }
-    .excel-select-group label { font-size: 13px; color: #555; font-weight: 500; }
-    .excel-select-group select { padding: 8px 12px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; color: #333; }
-    .excel-button-group { display: flex; gap: 12px; margin-bottom: 30px; }
-    .excel-button-group button { flex: 1; padding: 12px 24px; border-radius: 6px; font-size: 15px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; }
-    .excel-btn-convert { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
-    .excel-btn-convert:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3); }
-    .excel-btn-convert:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
-    .excel-btn-reset { background: #e9ecef; color: #333; }
-    .excel-btn-reset:hover { background: #dee2e6; }
-    .excel-btn-copy { background: #28a745; color: white; padding: 10px 20px; font-size: 14px; }
-    .excel-btn-copy:hover { background: #218838; }
-    .excel-btn-download { background: #007bff; color: white; padding: 10px 20px; font-size: 14px; }
-    .excel-btn-download:hover { background: #0056b3; }
-    .excel-output-section { display: none; }
-    .excel-output-section.show { display: block; }
-    .excel-output-title { font-weight: 600; color: #333; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; }
-    .excel-output-controls { display: flex; gap: 10px; flex-wrap: wrap; }
-    .excel-output-box { background: #f5f5f5; border: 1px solid #ddd; border-radius: 6px; padding: 15px; font-family: 'Monaco', 'Courier New', monospace; font-size: 13px; max-height: 400px; overflow-y: auto; white-space: pre-wrap; word-wrap: break-word; color: #333; line-height: 1.5; }
-    .excel-file-info { background: #e7f3ff; border-left: 4px solid #2196F3; padding: 12px 15px; border-radius: 4px; margin-bottom: 20px; color: #0c5aa0; font-size: 13px; }
-    .excel-alert { padding: 12px 15px; border-radius: 6px; margin-bottom: 20px; font-size: 14px; }
-    .excel-alert.error { background: #fee; color: #c33; border: 1px solid #fcc; }
-    .excel-alert.success { background: #efe; color: #3c3; border: 1px solid #cfc; }
-    .excel-sheet-selector { margin-bottom: 20px; }
-    .excel-sheet-selector label { display: block; font-weight: 600; color: #333; margin-bottom: 8px; font-size: 14px; }
-    .excel-sheet-selector select { width: 100%; padding: 10px 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px; }
-    .excel-preview-table { width: 100%; border-collapse: collapse; margin: 15px 0; font-size: 13px; max-height: 300px; overflow-y: auto; display: block; }
-    .excel-preview-table thead { background: #f0f0f0; position: sticky; top: 0; }
-    .excel-preview-table th, .excel-preview-table td { border: 1px solid #ddd; padding: 10px; text-align: left; }
-    .excel-preview-table th { font-weight: 600; color: #333; }
-    .excel-preview-section { margin-top: 20px; padding-top: 20px; border-top: 1px solid #ddd; }
-    .excel-preview-title { font-weight: 600; color: #333; margin-bottom: 10px; }
-    .excel-spinner { display: inline-block; width: 20px; height: 20px; border: 3px solid rgba(0,0,0,.1); border-radius: 50%; border-top-color: #667eea; animation: spin 0.8s linear infinite; }
-    @keyframes spin { to { transform: rotate(360deg); } }
-    .excel-loading { display: none; text-align: center; color: #666; margin: 20px 0; }
-    .excel-loading.show { display: block; }
-    .excel-toast { position: fixed; bottom: 20px; right: 20px; background: #333; color: white; padding: 15px 20px; border-radius: 6px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2); z-index: 1000; animation: slideIn 0.3s ease, slideOut 0.3s ease 2.7s; }
-    @keyframes slideIn { from { transform: translateX(400px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
-    @keyframes slideOut { from { transform: translateX(0); opacity: 1; } to { transform: translateX(400px); opacity: 0; } }
-
-    /* JSON to Excel styles */
-    .json-card { max-width: 980px; margin: 0 auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 6px 18px rgba(0,0,0,.06); }
-    .json-textarea { width: 100%; height: 260px; padding: 12px; border: 1px solid #e6e9ef; border-radius: 6px; font-family: inherit; }
-    .json-controls { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
-    .json-btn-primary { background: #3b82f6; color: #fff; }
-    .json-btn-muted { background: #eef2ff; color: #111; }
-    .json-btn-danger { background: #ef4444; color: #fff; }
-    .json-pre { background: #0b1220; color: #dbeafe; padding: 12px; border-radius: 6px; max-height: 320px; overflow: auto; }
-    .json-label { font-weight: 600; }
-    .json-small { font-size: 13px; color: #6b7280; }
-    .json-row { display: flex; gap: 8px; align-items: center; }
-    .json-error { color: #c33; margin-top: 8px; }
-    .json-info { color: #0c5aa0; margin-top: 8px; }
-    .json-top-link { float: right; margin-bottom: 12px; }
-    .json-a.top-link { color: #3b82f6; text-decoration: none; font-weight: 600; }
-
-    /* MD to Quiz styles */
-    .md-card { max-width: 900px; margin: 0 auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 6px 18px rgba(0,0,0,.06); }
-    .md-textarea { width: 100%; height: 320px; padding: 12px; border: 1px solid #e6e9ef; border-radius: 6px; font-family: inherit; }
-    .md-controls { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
-    .md-btn-primary { background: #3b82f6; color: #fff; }
-    .md-btn-muted { background: #eef2ff; color: #111; }
-    .md-pre { background: #0b1220; color: #dbeafe; padding: 12px; border-radius: 6px; max-height: 360px; overflow: auto; }
-    .md-label { font-weight: 600; }
-    .md-small { font-size: 13px; color: #6b7280; }
-    .md-row { display: flex; gap: 8px; align-items: center; }
-    .md-error { color: #c33; margin-top: 8px; }
-    .md-top-link { float: right; margin-bottom: 12px; }
-    .md-a.top-link { color: #3b82f6; text-decoration: none; font-weight: 600; }
-  </style>
+  <link rel="stylesheet" href="styles.css">
   <!-- SheetJS Library for Excel -->
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 </head>
@@ -225,6 +14,8 @@
     <button class="tab-button" onclick="showTab('excel')">Excel to JSON</button>
     <button class="tab-button" onclick="showTab('json')">JSON to Excel</button>
     <button class="tab-button" onclick="showTab('md')">MD to Quiz JSON</button>
+    <button class="tab-button" onclick="showTab('json-md')">JSON to MD</button>
+    <button class="tab-button" onclick="showTab('excel-md')">Excel to MD</button>
   </div>
 
   <div id="quiz" class="tab-content active">
@@ -298,6 +89,11 @@
       <!-- Right Panel: Data Display -->
       <div class="quiz-card">
         <h1 class="quiz-h1">📋 Questions</h1>
+        <div class="quiz-select-all">
+          <input type="checkbox" id="quiz-selectAll" class="quiz-question-checkbox">
+          <label for="quiz-selectAll">Select All</label>
+          <button type="button" class="quiz-btn-secondary quiz-btn-small" id="quiz-massChangeBlockBtn" style="margin-left: auto;">✏️ Change Block (Selected)</button>
+        </div>
 
         <div class="quiz-stats">
           <strong>Total:</strong> <span id="quiz-totalCount">0</span> | 
@@ -494,1001 +290,132 @@
     </div>
   </div>
 
-  <script>
-    // Tab switching
-    function showTab(tabId) {
-      document.querySelectorAll('.tab-content').forEach(div => div.classList.remove('active'));
-      document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
-      document.getElementById(tabId).classList.add('active');
-      document.querySelector(`[onclick="showTab('${tabId}')"]`).classList.add('active');
-    }
+  <div id="json-md" class="tab-content">
+    <div class="json-card">
+      <h1>JSON to Markdown Converter</h1>
+      <p class="json-small">Convert quiz JSON data to Markdown format with blocks and questions.</p>
 
-    // Quiz Manager Script (adapted with prefixes)
-    class QuizCRUD {
-      constructor() {
-        this.data = [];
-        this.editingId = null;
-        this.deleteTargetId = null;
-        this.filteredData = [];
+      <div class="json-row">
+        <input type="file" id="json-md-fileInput" accept=".json" style="flex:1">
+        <label for="json-md-fileInput" class="json-btn-muted" style="cursor:pointer; padding:8px 12px; border-radius:4px;">Choose File</label>
+      </div>
 
-        this.form = document.getElementById('quiz-quizForm');
-        this.idField = document.getElementById('quiz-idField');
-        this.questionField = document.getElementById('quiz-questionField');
-        this.rightAnswerField = document.getElementById('quiz-rightAnswerField');
-        this.wrong1Field = document.getElementById('quiz-wrong1Field');
-        this.wrong2Field = document.getElementById('quiz-wrong2Field');
-        this.wrong3Field = document.getElementById('quiz-wrong3Field');
-        this.blockField = document.getElementById('quiz-blockField');
-        this.submitBtn = document.getElementById('quiz-submitBtn');
-        this.cancelEditBtn = document.getElementById('quiz-cancelEditBtn');
-        this.formAlert = document.getElementById('quiz-formAlert');
-        this.questionError = document.getElementById('quiz-questionError');
+      <div style="margin-top:12px">
+        <label for="json-md-jsonInput" class="json-label">JSON Input</label>
+        <textarea id="json-md-jsonInput" class="json-textarea" placeholder="Paste JSON here or select file above"></textarea>
+      </div>
 
-        this.dataPanel = document.getElementById('quiz-dataPanel');
-        this.searchInput = document.getElementById('quiz-searchInput');
-        this.blockFilter = document.getElementById('quiz-blockFilter');
-        this.totalCount = document.getElementById('quiz-totalCount');
-        this.filteredCount = document.getElementById('quiz-filteredCount');
+      <div class="json-row" style="margin-top:12px">
+        <label><input type="checkbox" id="json-md-autoId" checked> Auto-generate IDs</label>
+      </div>
 
-        this.deleteModal = document.getElementById('quiz-deleteModal');
-        this.cancelDeleteBtn = document.getElementById('quiz-cancelDeleteBtn');
-        this.confirmDeleteBtn = document.getElementById('quiz-confirmDeleteBtn');
+      <div class="json-controls">
+        <button id="json-md-validateBtn" class="json-btn-muted">Validate JSON</button>
+        <button id="json-md-previewBtn" class="json-btn-muted">Preview JSON</button>
+        <button id="json-md-convertBtn" class="json-btn-primary">Convert to Markdown</button>
+        <button id="json-md-downloadBtn" class="json-btn-primary">Download MD</button>
+        <button id="json-md-clearBtn" class="json-btn-muted">Clear</button>
+      </div>
 
-        this.importBtn = document.getElementById('quiz-importBtn');
-        this.importFile = document.getElementById('quiz-importFile');
-        this.exportBtn = document.getElementById('quiz-exportBtn');
-        this.deleteAllBtn = document.getElementById('quiz-deleteAllBtn');
-        this.bulkBlockBtn = document.getElementById('quiz-bulkBlockBtn');
-        this.lastExport = document.getElementById('quiz-lastExport');
+      <div id="json-md-msg"></div>
 
-        this.init();
-      }
+      <h3 style="margin-top:16px">Markdown Output</h3>
+      <pre id="json-md-preview"></pre>
+    </div>
+  </div>
 
-      init() {
-        this.loadData();
-        this.attachEventListeners();
-        this.render();
-      }
+  <div id="excel-md" class="tab-content">
+    <div class="excel-container">
+      <h1 class="excel-h1">Excel to Markdown Converter</h1>
+      <p class="excel-subtitle">Convert Excel files to Markdown format with quiz structure</p>
 
-      loadData() {
-        const stored = localStorage.getItem('quizData');
-        this.data = stored ? JSON.parse(stored) : [];
-      }
+      <div id="excel-md-uploadSection" class="excel-upload-section">
+        <div class="excel-upload-icon">📊</div>
+        <div class="excel-upload-text">Drag & drop Excel file here or click to select</div>
+        <div class="excel-upload-hint">Supports .xlsx, .xls, .csv files</div>
+        <input id="excel-md-fileInput" type="file" accept=".xlsx,.xls,.csv" class="excel-fileInput">
+      </div>
 
-      saveData() {
-        localStorage.setItem('quizData', JSON.stringify(this.data));
-      }
+      <div id="excel-md-fileInfo" class="excel-file-info" style="display: none;">
+        <strong>File:</strong> <span id="excel-md-fileName"></span>
+      </div>
 
-      attachEventListeners() {
-        this.form.addEventListener('submit', (e) => this.handleSubmit(e));
-        this.cancelEditBtn.addEventListener('click', () => this.cancelEdit());
-        this.searchInput.addEventListener('input', () => this.render());
-        this.blockFilter.addEventListener('change', () => this.render());
-        this.cancelDeleteBtn.addEventListener('click', () => this.closeDeleteModal());
-        this.confirmDeleteBtn.addEventListener('click', () => this.confirmDelete());
-        this.importBtn.addEventListener('click', () => this.importFile.click());
-        this.importFile.addEventListener('change', (e) => this.handleImport(e));
-        this.exportBtn.addEventListener('click', () => this.handleExport());
-        this.deleteAllBtn.addEventListener('click', () => this.handleDeleteAll());
-        this.bulkBlockBtn.addEventListener('click', () => this.handleBulkBlock());
-      }
+      <div id="excel-md-loading" class="excel-loading">
+        <div class="excel-spinner"></div>
+        Processing file...
+      </div>
 
-      handleSubmit(e) {
-        e.preventDefault();
-        this.formAlert.innerHTML = '';
-        this.questionError.style.display = 'none';
+      <div id="excel-md-sheetSelector" class="excel-sheet-selector" style="display: none;">
+        <label for="excel-md-sheetSelect">Select Sheet:</label>
+        <select id="excel-md-sheetSelect"></select>
+      </div>
 
-        const question = this.questionField.value.trim();
-        const rightAnswer = this.rightAnswerField.value.trim();
-        const wrong1 = this.wrong1Field.value.trim();
-        const wrong2 = this.wrong2Field.value.trim();
-        const wrong3 = this.wrong3Field.value.trim();
-        const block = this.blockField.value.trim();
-
-        if (!question) {
-          this.showFormAlert('Question cannot be empty', 'error');
-          return;
-        }
-
-        if (!rightAnswer || !wrong1 || !wrong2 || !wrong3) {
-          this.showFormAlert('All answer fields are required', 'error');
-          return;
-        }
-
-        const isDuplicate = this.data.some(
-          (item) => item.Question.toLowerCase() === question.toLowerCase() && item.id !== this.editingId
-        );
-        if (isDuplicate) {
-          this.questionError.textContent = 'This question already exists!';
-          this.questionError.style.display = 'block';
-          this.showFormAlert('Question already exists', 'error');
-          return;
-        }
-
-        const item = {
-          id: this.editingId || this.generateId(),
-          Question: question,
-          RightAnswer: rightAnswer,
-          Wrong1: wrong1,
-          Wrong2: wrong2,
-          Wrong3: wrong3,
-          Block: block || null,
-        };
-
-        if (this.editingId) {
-          const index = this.data.findIndex((d) => d.id === this.editingId);
-          if (index >= 0) {
-            this.data[index] = item;
-            this.showFormAlert('Question updated!', 'success');
-          }
-          this.cancelEdit();
-        } else {
-          this.data.push(item);
-          this.showFormAlert('Question added!', 'success');
-          this.form.reset();
-          this.idField.value = '';
-        }
-
-        this.saveData();
-        this.render();
-      }
-
-      generateId() {
-        return this.data.length > 0 ? Math.max(...this.data.map((d) => d.id)) + 1 : 1;
-      }
-
-      editItem(id) {
-        const item = this.data.find((d) => d.id === id);
-        if (!item) return;
-
-        this.editingId = id;
-        this.idField.value = item.id;
-        this.questionField.value = item.Question;
-        this.rightAnswerField.value = item.RightAnswer;
-        this.wrong1Field.value = item.Wrong1;
-        this.wrong2Field.value = item.Wrong2;
-        this.wrong3Field.value = item.Wrong3;
-        this.blockField.value = item.Block || '';
-        this.submitBtn.textContent = 'Update Question';
-        this.cancelEditBtn.style.display = 'inline-block';
-        this.formAlert.innerHTML = '<div class="quiz-alert quiz-alert-info">Editing mode</div>';
-
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-      }
-
-      cancelEdit() {
-        this.editingId = null;
-        this.form.reset();
-        this.idField.value = '';
-        this.submitBtn.textContent = 'Add Question';
-        this.cancelEditBtn.style.display = 'none';
-        this.formAlert.innerHTML = '';
-        this.questionError.style.display = 'none';
-      }
-
-      deleteItem(id) {
-        this.deleteTargetId = id;
-        this.deleteModal.classList.add('show');
-      }
-
-      confirmDelete() {
-        this.data = this.data.filter((d) => d.id !== this.deleteTargetId);
-        this.saveData();
-        this.closeDeleteModal();
-        if (this.editingId === this.deleteTargetId) {
-          this.cancelEdit();
-        }
-        this.render();
-        this.showFormAlert('Question deleted!', 'success');
-      }
-
-      closeDeleteModal() {
-        this.deleteModal.classList.remove('show');
-        this.deleteTargetId = null;
-      }
-
-      showFormAlert(message, type) {
-        this.formAlert.innerHTML = `<div class="quiz-alert quiz-alert-${type}">${message}</div>`;
-      }
-
-      handleImport(e) {
-        const file = e.target.files[0];
-        if (!file) return;
-
-        const reader = new FileReader();
-        reader.onload = (event) => {
-          try {
-            const imported = JSON.parse(event.target.result);
-
-            if (!Array.isArray(imported)) {
-              this.showFormAlert('Invalid JSON: Expected an array of questions', 'error');
-              return;
-            }
-
-            const validItems = imported
-              .filter((item) => {
-                return (
-                  typeof item.Question === 'string' &&
-                  typeof item.RightAnswer === 'string' &&
-                  typeof item.Wrong1 === 'string' &&
-                  typeof item.Wrong2 === 'string' &&
-                  typeof item.Wrong3 === 'string' &&
-                  (item.Block === null || item.Block === '' || typeof item.Block === 'string')
-                );
-              })
-              .map((item) => ({
-                ...item,
-                id: typeof item.id === 'number' ? item.id : undefined,
-                Block: item.Block || null,
-              }));
-
-            if (validItems.length === 0) {
-              this.showFormAlert('No valid questions found in the JSON file', 'error');
-              return;
-            }
-
-            if (validItems.length < imported.length) {
-              this.showFormAlert(
-                `Importing ${validItems.length} out of ${imported.length} questions. Some items were skipped due to missing required fields.`,
-                'info'
-              );
-            }
-
-            if (this.data.length > 0) {
-              const confirmReplace = confirm(
-                `You have ${this.data.length} existing questions.\n\nDo you want to:\nOK = Replace all with imported data\nCancel = Merge with existing data`
-              );
-              if (confirmReplace) {
-                this.data = this.assignIds(validItems);
-              } else {
-                const maxId = Math.max(...this.data.map((d) => d.id), 0);
-                const merged = validItems.map((item, index) => ({
-                  ...item,
-                  id: item.id || maxId + index + 1,
-                }));
-                this.data = [...this.data, ...merged];
-              }
-            } else {
-              this.data = this.assignIds(validItems);
-            }
-
-            this.saveData();
-            this.cancelEdit();
-            this.render();
-            this.showFormAlert('✓ Data imported successfully!', 'success');
-          } catch (error) {
-            this.showFormAlert(`Error parsing JSON: ${error.message}`, 'error');
-          }
-        };
-
-        reader.readAsText(file);
-        this.importFile.value = '';
-      }
-
-      assignIds(items) {
-        let maxId = this.data.length > 0 ? Math.max(...this.data.map((d) => d.id), 0) : 0;
-        return items.map((item) => {
-          if (item.id === undefined) {
-            item.id = ++maxId;
-          } else {
-            maxId = Math.max(maxId, item.id);
-          }
-          return item;
-        });
-      }
-
-      handleExport() {
-        if (this.data.length === 0) {
-          this.showFormAlert('No data to export', 'error');
-          return;
-        }
-
-        const filename = `quiz-data-${new Date().toISOString().split('T')[0]}.json`;
-        const blob = new Blob([JSON.stringify(this.data, null, 2)], {
-          type: 'application/json',
-        });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = filename;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-
-        this.lastExport.textContent = `Last export: ${new Date().toLocaleTimeString()}`;
-        this.showFormAlert(`✓ Exported ${this.data.length} questions to ${filename}`, 'success');
-      }
-
-      handleDeleteAll() {
-        if (this.data.length === 0) {
-          this.showFormAlert('Nothing to delete', 'info');
-          return;
-        }
-        if (confirm('Are you sure you want to delete ALL questions? This cannot be undone.')) {
-          this.data = [];
-          this.saveData();
-          this.cancelEdit();
-          this.render();
-          this.showFormAlert('All questions deleted', 'success');
-        }
-      }
-
-      handleBulkBlock() {
-        const filtered = this.getFilteredData();
-        if (filtered.length === 0) {
-          this.showFormAlert('No questions match current filter/search', 'error');
-          return;
-        }
-        const newBlock = prompt('Enter new block value (empty for none):', '');
-        if (newBlock === null) return;
-        filtered.forEach(item => { item.Block = newBlock.trim() || null; });
-        this.saveData();
-        this.render();
-        this.showFormAlert(`Updated block for ${filtered.length} questions`, 'success');
-      }
-
-      getFilteredData() {
-        let filtered = this.data;
-
-        const search = this.searchInput.value.toLowerCase();
-        if (search) {
-          filtered = filtered.filter(
-            (item) =>
-              item.id.toString().includes(search) ||
-              item.Question.toLowerCase().includes(search)
-          );
-        }
-
-        const blockFilter = this.blockFilter.value;
-        if (blockFilter) {
-          filtered = filtered.filter((item) => item.Block === blockFilter);
-        }
-
-        return filtered;
-      }
-
-      populateBlockFilter() {
-        const blocks = [...new Set(this.data.map((d) => d.Block).filter(Boolean))];
-        blocks.sort();
-
-        this.blockFilter.innerHTML = '<option value="">All Blocks</option>';
-        blocks.forEach((block) => {
-          const option = document.createElement('option');
-          option.value = block;
-          option.textContent = block;
-          this.blockFilter.appendChild(option);
-        });
-      }
-
-      render() {
-        this.filteredData = this.getFilteredData();
-        this.totalCount.textContent = this.data.length;
-        this.filteredCount.textContent = this.filteredData.length;
-        this.populateBlockFilter();
-
-        if (this.filteredData.length === 0) {
-          this.dataPanel.innerHTML = `
-            <div class="quiz-empty-state">
-              <div class="quiz-empty-state-icon">📭</div>
-              <p>${this.data.length === 0 ? 'No questions yet. Add one to get started!' : 'No questions match your search or filter.'}</p>
-            </div>
-          `;
-          return;
-        }
-
-        this.dataPanel.innerHTML = this.filteredData
-          .map((item) => this.renderItem(item))
-          .join('');
-
-        this.filteredData.forEach((item) => {
-          const editBtn = document.getElementById(`quiz-edit-${item.id}`);
-          const deleteBtn = document.getElementById(`quiz-delete-${item.id}`);
-          if (editBtn) editBtn.addEventListener('click', () => this.editItem(item.id));
-          if (deleteBtn) deleteBtn.addEventListener('click', () => this.deleteItem(item.id));
-        });
-      }
-
-      renderItem(item) {
-        const blockBadge = item.Block ? `<span class="quiz-question-block">${this.escapeHtml(item.Block)}</span>` : '';
-        return `
-          <div class="quiz-question-item">
-            <div>
-              <span class="quiz-question-id">#${item.id}</span>
-              ${blockBadge}
-            </div>
-            <div class="quiz-question-text">${this.escapeHtml(item.Question)}</div>
-            <div class="quiz-answer-preview">
-              <strong>✓ ${this.escapeHtml(item.RightAnswer)}</strong><br>
-              <small>✗ ${this.escapeHtml(item.Wrong1)}</small><br>
-              <small>✗ ${this.escapeHtml(item.Wrong2)}</small><br>
-              <small>✗ ${this.escapeHtml(item.Wrong3)}</small>
-            </div>
-            <div class="quiz-question-actions">
-              <button class="quiz-btn-primary quiz-btn-small" id="quiz-edit-${item.id}">Edit</button>
-              <button class="quiz-btn-danger quiz-btn-small" id="quiz-delete-${item.id}">Delete</button>
-            </div>
+      <div id="excel-md-optionsSection" class="excel-options-section" style="display: none;">
+        <div class="excel-options-title">Options</div>
+        <div class="excel-option-group">
+          <div class="excel-checkbox-option">
+            <input type="checkbox" id="excel-md-useFirstRowAsHeader" checked>
+            <label for="excel-md-useFirstRowAsHeader">First row as headers</label>
           </div>
-        `;
-      }
-
-      escapeHtml(text) {
-        const map = {
-          '&': '&amp;',
-          '<': '&lt;',
-          '>': '&gt;',
-          '"': '&quot;',
-          "'": '&#039;',
-        };
-        return text.replace(/[&<>"']/g, (m) => map[m]);
-      }
-    }
-
-    // Excel to JSON Script (adapted with prefixes)
-    function waitForXLSX(callback, attempts = 0) {
-      if (typeof XLSX !== 'undefined') {
-        callback();
-      } else if (attempts < 50) {
-        setTimeout(() => waitForXLSX(callback, attempts + 1), 100);
-      } else {
-        console.error('Failed to load XLSX library');
-      }
-    }
-
-    class ExcelToJsonConverter {
-      constructor() {
-        this.workbook = null;
-        this.data = null;
-        this.jsonOutput = null;
-        this.uploadSection = document.getElementById('excel-uploadSection');
-        this.fileInput = document.getElementById('excel-fileInput');
-        this.fileInfo = document.getElementById('excel-fileInfo');
-        this.fileName = document.getElementById('excel-fileName');
-        this.loading = document.getElementById('excel-loading');
-        this.sheetSelector = document.getElementById('excel-sheetSelector');
-        this.sheetSelect = document.getElementById('excel-sheetSelect');
-        this.optionsSection = document.getElementById('excel-optionsSection');
-        this.buttonGroup = document.getElementById('excel-buttonGroup');
-        this.previewSection = document.getElementById('excel-previewSection');
-        this.convertBtn = document.getElementById('excel-convertBtn');
-        this.resetBtn = document.getElementById('excel-resetBtn');
-        this.outputSection = document.getElementById('excel-outputSection');
-        this.outputBox = document.getElementById('excel-outputBox');
-        this.copyBtn = document.getElementById('excel-copyBtn');
-        this.downloadBtn = document.getElementById('excel-downloadBtn');
-        this.alertContainer = document.getElementById('excel-alertContainer');
-
-        this.setupEventListeners();
-      }
-
-      setupEventListeners() {
-        this.uploadSection.addEventListener('click', () => this.fileInput.click());
-        this.fileInput.addEventListener('change', (e) => this.handleFileSelect(e));
-        this.uploadSection.addEventListener('dragover', (e) => {
-          e.preventDefault();
-          this.uploadSection.classList.add('dragover');
-        });
-        this.uploadSection.addEventListener('dragleave', () => {
-          this.uploadSection.classList.remove('dragover');
-        });
-        this.uploadSection.addEventListener('drop', (e) => {
-          e.preventDefault();
-          this.uploadSection.classList.remove('dragover');
-          const files = e.dataTransfer.files;
-          if (files.length) {
-            this.fileInput.files = files;
-            this.handleFileSelect({ target: { files } });
-          }
-        });
-        this.sheetSelect.addEventListener('change', () => this.loadSheet());
-        document.getElementById('excel-useFirstRowAsHeader').addEventListener('change', () => {
-          if (this.data) this.loadSheet();
-        });
-        this.convertBtn.addEventListener('click', () => this.convert());
-        this.resetBtn.addEventListener('click', () => this.reset());
-        this.copyBtn.addEventListener('click', () => this.copyToClipboard());
-        this.downloadBtn.addEventListener('click', () => this.downloadJson());
-      }
-
-      handleFileSelect(e) {
-        const files = e.target.files;
-        if (!files.length) return;
-
-        const file = files[0];
-        const validTypes = [
-          'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-          'application/vnd.ms-excel',
-          'text/csv'
-        ];
-
-        if (!validTypes.includes(file.type) && !file.name.match(/\.(xlsx|xls|csv)$/i)) {
-          this.showAlert('Please upload a valid Excel or CSV file', 'error');
-          return;
-        }
-
-        this.showAlert('');
-        this.loading.classList.add('show');
-
-        const reader = new FileReader();
-        reader.onload = (event) => {
-          try {
-            const arrayBuffer = event.target.result;
-            this.workbook = XLSX.read(arrayBuffer, { type: 'array' });
-            this.fileName.textContent = file.name;
-            this.fileInfo.style.display = 'block';
-            this.loading.classList.remove('show');
-            this.populateSheets();
-          } catch (error) {
-            this.loading.classList.remove('show');
-            this.showAlert('Error reading file: ' + error.message, 'error');
-          }
-        };
-
-        reader.readAsArrayBuffer(file);
-      }
-
-      populateSheets() {
-        const sheets = this.workbook.SheetNames;
-        this.sheetSelect.innerHTML = '';
-        sheets.forEach((sheetName, index) => {
-          const option = document.createElement('option');
-          option.value = index;
-          option.textContent = sheetName;
-          this.sheetSelect.appendChild(option);
-        });
-
-        this.sheetSelector.style.display = this.workbook.SheetNames.length > 1 ? 'block' : 'none';
-        this.optionsSection.style.display = 'block';
-        this.buttonGroup.style.display = 'flex';
-        this.loadSheet();
-      }
-
-      loadSheet() {
-        const sheetIndex = parseInt(this.sheetSelect.value) || 0;
-        const sheetName = this.workbook.SheetNames[sheetIndex];
-        const worksheet = this.workbook.Sheets[sheetName];
-        const rawData = XLSX.utils.sheet_to_json(worksheet, { 
-          header: 1,
-          defval: ''
-        });
-
-        this.data = rawData;
-        this.showPreview();
-      }
-
-      showPreview() {
-        if (!this.data || this.data.length === 0) {
-          this.previewSection.style.display = 'none';
-          return;
-        }
-
-        const useHeader = document.getElementById('excel-useFirstRowAsHeader').checked;
-        const previewRows = this.data.slice(0, useHeader ? 6 : 5);
-        const headers = useHeader && this.data.length > 0 ? this.data[0] : [];
-        const bodyRows = useHeader ? previewRows.slice(1) : previewRows;
-
-        const previewHead = document.getElementById('excel-previewHead');
-        const previewBody = document.getElementById('excel-previewBody');
-
-        previewHead.innerHTML = '';
-        previewBody.innerHTML = '';
-
-        if (headers.length > 0 && useHeader) {
-          previewHead.innerHTML = headers.map(h => `<th>${this.escapeHtml(String(h || ''))}</th>`).join('');
-        } else {
-          const cols = Math.max(...bodyRows.map(r => r.length));
-          previewHead.innerHTML = Array(cols).fill(0).map((_, i) => `<th>Column ${i + 1}</th>`).join('');
-        }
-
-        bodyRows.forEach(row => {
-          const cells = row.map(cell => `<td>${this.escapeHtml(String(cell || ''))}</td>`).join('');
-          previewBody.innerHTML += `<tr>${cells}</tr>`;
-        });
-
-        this.previewSection.style.display = 'block';
-      }
-
-      convert() {
-        if (!this.data || this.data.length === 0) {
-          this.showAlert('No data to convert', 'error');
-          return;
-        }
-
-        try {
-          const useHeader = document.getElementById('excel-useFirstRowAsHeader').checked;
-          const includeEmpty = document.getElementById('excel-includeEmptyCells').checked;
-          const dateFormat = document.getElementById('excel-dateFormat').value;
-          const numberFormat = document.getElementById('excel-numberFormat').value;
-
-          let jsonData = [];
-
-          if (useHeader && this.data.length > 1) {
-            const headers = this.data[0];
-            const rows = this.data.slice(1);
-
-            jsonData = rows.map(row => {
-              const obj = {};
-              headers.forEach((header, index) => {
-                const value = row[index];
-                if (includeEmpty || value !== '' && value !== null && value !== undefined) {
-                  obj[header || `Column${index + 1}`] = this.parseValue(value, numberFormat, dateFormat);
-                }
-              });
-              return obj;
-            });
-          } else {
-            jsonData = this.data.map((row, rowIndex) => {
-              const obj = {};
-              row.forEach((cell, colIndex) => {
-                const key = `field${colIndex + 1}`;
-                if (includeEmpty || cell !== '' && cell !== null && cell !== undefined) {
-                  obj[key] = this.parseValue(cell, numberFormat, dateFormat);
-                }
-              });
-              return obj;
-            });
-          }
-
-          this.jsonOutput = jsonData;
-          this.displayOutput(JSON.stringify(jsonData, null, 2));
-          this.showAlert('Conversion successful!', 'success');
-        } catch (error) {
-          this.showAlert('Error during conversion: ' + error.message, 'error');
-        }
-      }
-
-      parseValue(value, numberFormat, dateFormat) {
-        if (value === '' || value === null || value === undefined) {
-          return value;
-        }
-
-        if (numberFormat === 'auto' || numberFormat === 'number') {
-          const num = Number(value);
-          if (!isNaN(num) && value !== '') {
-            return numberFormat === 'number' || !isNaN(parseFloat(value)) ? num : value;
-          }
-        }
-
-        if (this.isDate(value)) {
-          if (dateFormat === 'iso') {
-            return new Date(value).toISOString().split('T')[0];
-          } else if (dateFormat === 'timestamp') {
-            return new Date(value).getTime();
-          }
-        }
-
-        return value;
-      }
-
-      isDate(value) {
-        if (typeof value !== 'string') return false;
-        const date = new Date(value);
-        return date instanceof Date && !isNaN(date);
-      }
-
-      displayOutput(output) {
-        this.outputBox.textContent = output;
-        this.outputSection.classList.add('show');
-      }
-
-      copyToClipboard() {
-        const text = this.outputBox.textContent;
-        navigator.clipboard.writeText(text).then(() => {
-          this.showToast('Copied to clipboard!');
-        }).catch(err => {
-          this.showAlert('Failed to copy to clipboard', 'error');
-        });
-      }
-
-      downloadJson() {
-        if (!this.jsonOutput) return;
-
-        const filename = (this.fileName.textContent || 'data').replace(/\.[^/.]+$/, '') + '.json';
-        const element = document.createElement('a');
-        element.setAttribute('href', 'data:application/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(this.jsonOutput, null, 2)));
-        element.setAttribute('download', filename);
-        element.style.display = 'none';
-        document.body.appendChild(element);
-        element.click();
-        document.body.removeChild(element);
-        this.showToast('File downloaded!');
-      }
-
-      reset() {
-        this.fileInput.value = '';
-        this.workbook = null;
-        this.data = null;
-        this.jsonOutput = null;
-        this.fileInfo.style.display = 'none';
-        this.sheetSelector.style.display = 'none';
-        this.optionsSection.style.display = 'none';
-        this.buttonGroup.style.display = 'none';
-        this.previewSection.style.display = 'none';
-        this.outputSection.classList.remove('show');
-        this.alertContainer.innerHTML = '';
-      }
-
-      showAlert(message, type = 'error') {
-        if (!message) {
-          this.alertContainer.innerHTML = '';
-          return;
-        }
-        this.alertContainer.innerHTML = `<div class="excel-alert excel-alert-${type}">${this.escapeHtml(message)}</div>`;
-      }
-
-      showToast(message) {
-        const toast = document.createElement('div');
-        toast.className = 'excel-toast';
-        toast.textContent = message;
-        document.body.appendChild(toast);
-        setTimeout(() => toast.remove(), 3000);
-      }
-
-      escapeHtml(text) {
-        const map = {
-          '&': '&amp;',
-          '<': '&lt;',
-          '>': '&gt;',
-          '"': '&quot;',
-          "'": '&#039;'
-        };
-        return text.replace(/[&<>"']/g, m => map[m]);
-      }
-    }
-
-    // JSON to Excel Script (adapted with prefixes)
-    const jsonFileInput = document.getElementById('json-fileInput');
-    const jsonJsonInput = document.getElementById('json-jsonInput');
-    const jsonConvertBtn = document.getElementById('json-convertBtn');
-    const jsonPreviewBtn = document.getElementById('json-previewBtn');
-    const jsonValidateBtn = document.getElementById('json-validateBtn');
-    const jsonClearBtn = document.getElementById('json-clearBtn');
-    const jsonMsg = document.getElementById('json-msg');
-    const jsonPreview = document.getElementById('json-preview');
-    const jsonAutoId = document.getElementById('json-autoId');
-    const jsonPasteToCrudBtn = document.getElementById('json-pasteToCrudBtn');
-
-    const jsonHEADERS = ['id','question','rightanswer','wrong1','wrong2','wrong3','block'];
-
-    jsonFileInput.addEventListener('change', (e)=>{
-      const f = e.target.files[0];
-      if(!f) return;
-      const r = new FileReader();
-      r.onload = ()=>{ jsonJsonInput.value = r.result; jsonPreview.textContent = '[]'; jsonMsg.textContent = ''; };
-      r.readAsText(f, 'utf-8');
-    });
-
-    jsonClearBtn.addEventListener('click', ()=>{ jsonJsonInput.value = ''; jsonPreview.textContent = '[]'; jsonMsg.textContent=''; });
-
-    jsonValidateBtn.addEventListener('click', ()=>{
-      const res = jsonParseAndNormalize();
-      if(res.error){ jsonMsg.innerHTML = `<div class="json-error">${res.error}</div>`; return; }
-      jsonMsg.innerHTML = `<div class="json-info">Valid JSON — ${res.items.length} items parsed.</div>`;
-      jsonPreview.textContent = JSON.stringify(res.items, null, 2);
-    });
-
-    jsonPreviewBtn.addEventListener('click', ()=>{
-      const res = jsonParseAndNormalize();
-      if(res.error){ jsonMsg.innerHTML = `<div class="json-error">${res.error}</div>`; return; }
-      const html = jsonBuildTableHtml(res.items);
-      jsonPreview.innerHTML = html;
-    });
-
-    jsonConvertBtn.addEventListener('click', ()=>{
-      const res = jsonParseAndNormalize();
-      if(res.error){ jsonMsg.innerHTML = `<div class="json-error">${res.error}</div>`; return; }
-      if(res.items.length === 0){ jsonMsg.innerHTML = `<div class="json-error">No items to export</div>`; return; }
-      const ws = XLSX.utils.json_to_sheet(res.items, { header: jsonHEADERS });
-      const wb = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');
-      const filename = `quiz-export-${new Date().toISOString().split('T')[0]}.xlsx`;
-      XLSX.writeFile(wb, filename);
-      jsonMsg.innerHTML = `<div class="json-info">Exported ${res.items.length} rows to ${filename}</div>`;
-    });
-
-    jsonPasteToCrudBtn.addEventListener('click', ()=>{
-      const res = jsonParseAndNormalize();
-      if(res.error){ jsonMsg.innerHTML = `<div class="json-error">${res.error}</div>`; return; }
-      if(res.items.length === 0){ jsonMsg.innerHTML = `<div class="json-error">No items to push</div>`; return; }
-      let existing = [];
-      try{ existing = JSON.parse(localStorage.getItem('quizData') || '[]'); }catch(e){ existing = []; }
-      if(jsonAutoId.checked){
-        const start = existing.length>0 ? Math.max(...existing.map(d=>d.id)) : 0;
-        let id = start;
-        const withIds = res.items.map(it => ({ id: ++id, ...it }));
-        existing = existing.concat(withIds);
-      } else {
-        const used = new Set(existing.map(d=>d.id));
-        let maxId = existing.length>0 ? Math.max(...existing.map(d=>d.id)) : 0;
-        const merged = res.items.map(it=>{
-          if(typeof it.id === 'number' && !used.has(it.id)) { used.add(it.id); return it; }
-          maxId += 1; return { ...it, id: maxId };
-        });
-        existing = existing.concat(merged);
-      }
-      localStorage.setItem('quizData', JSON.stringify(existing));
-      jsonMsg.innerHTML = `<div class="json-info">Pushed ${res.items.length} items to Quiz Manager</div>`;
-    });
-
-    function jsonBuildTableHtml(items){
-      if(items.length===0) return '[]';
-      const cols = jsonHEADERS;
-      let html = '<table style="width:100%;border-collapse:collapse">';
-      html += '<thead><tr>' + cols.map(c=>`<th style="border:1px solid #ddd;padding:6px;background:#f3f4f6;text-align:left">${c}</th>`).join('') + '</tr></thead>';
-      html += '<tbody>' + items.map(r=>'<tr>'+cols.map(c=>`<td style="border:1px solid #ddd;padding:6px">${jsonEscapeHtml(String(r[c]!==undefined? r[c]: ''))}</td>`).join('') + '</tr>').join('') + '</tbody>';
-      html += '</table>';
-      return html;
-    }
-
-    function jsonEscapeHtml(str){ return str.replace(/[&<>"']/g, m=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;' }[m])); }
-
-    function jsonParseAndNormalize(){
-      const raw = jsonJsonInput.value.trim();
-      if(!raw) return { items: [], error: null };
-      let parsed;
-      try{ parsed = JSON.parse(raw); }catch(e){ return { error: 'Invalid JSON: ' + e.message }; }
-      if(!Array.isArray(parsed)) return { error: 'JSON must be an array of objects' };
-      const items = [];
-      for(const obj of parsed){
-        if(typeof obj !== 'object' || obj === null) continue;
-        const lower = {};
-        for(const k of Object.keys(obj)) lower[k.toLowerCase()] = obj[k];
-        if(typeof lower['question'] !== 'string' || typeof lower['rightanswer'] !== 'string' || typeof lower['wrong1'] !== 'string' || typeof lower['wrong2'] !== 'string' || typeof lower['wrong3'] !== 'string'){
-          continue;
-        }
-        const entry = {
-          id: (typeof lower['id'] === 'number') ? lower['id'] : undefined,
-          question: lower['question'],
-          rightanswer: lower['rightanswer'],
-          wrong1: lower['wrong1'],
-          wrong2: lower['wrong2'],
-          wrong3: lower['wrong3'],
-          block: (typeof lower['block'] === 'string') ? lower['block'] : (lower['block'] == null ? '' : String(lower['block']))
-        };
-        items.push(entry);
-      }
-      if(jsonAutoId.checked){
-        let id = 0;
-        return { items: items.map(it=>({ id: ++id, ...it })), error: null };
-      }
-      return { items, error: null };
-    }
-
-    // MD to Quiz Script (adapted with prefixes)
-    function mdParseMarkdownToQuiz(mdText, options = { genId: true }){
-      const lines = mdText.split(/\r?\n/);
-      let currentBlock = '';
-      let currentQuestion = null;
-      const questions = [];
-
-      function flushQuestion(){
-        if(!currentQuestion) return;
-        const wrongs = currentQuestion.wrongs.slice(0,3);
-        while(wrongs.length < 3) wrongs.push('');
-
-        const obj = {
-          Question: currentQuestion.text || '',
-          RightAnswer: currentQuestion.right || '',
-          Wrong1: wrongs[0],
-          Wrong2: wrongs[1],
-          Wrong3: wrongs[2],
-          Block: currentBlock || ''
-        };
-        questions.push(obj);
-        currentQuestion = null;
-      }
-
-      for(let raw of lines){
-        const line = raw.replace(/\u00A0/g,' ').trimEnd();
-        if(!line) continue;
-
-        if(/^#\s+/.test(line)){
-          flushQuestion();
-          currentBlock = line.replace(/^#\s+/, '').trim();
-          continue;
-        }
-
-        if(/^##\s+/.test(line)){
-          flushQuestion();
-          currentQuestion = { text: line.replace(/^##\s+/, '').trim(), right: null, wrongs: [] };
-          continue;
-        }
-
-        if(/^-\s*\+\s*/.test(line)){
-          const val = line.replace(/^-\s*\+\s*/, '').trim();
-          if(!currentQuestion){
-            currentQuestion = { text: '', right: val, wrongs: [] };
-          } else {
-            currentQuestion.right = val;
-          }
-          continue;
-        }
-
-        if(/^-\s+/.test(line)){
-          const val = line.replace(/^-\s+/, '').trim();
-          if(!currentQuestion){
-            currentQuestion = { text: '', right: null, wrongs: [val] };
-          } else {
-            currentQuestion.wrongs.push(val);
-          }
-          continue;
-        }
-
-        if(currentQuestion && !currentQuestion.right && currentQuestion.wrongs.length===0){
-          currentQuestion.text += ' ' + line.trim();
-        }
-      }
-
-      flushQuestion();
-
-      const errors = [];
-      questions.forEach((q, idx) => {
-        if(!q.Question || q.Question.trim()===''){
-          errors.push(`Question #${idx+1} has empty question text.`);
-        }
-        if(!q.RightAnswer || q.RightAnswer.trim()===''){
-          errors.push(`Question #${idx+1} is missing RightAnswer.`);
-        }
-        const wrongCount = [q.Wrong1, q.Wrong2, q.Wrong3].filter(Boolean).length;
-        if(wrongCount === 0){
-          errors.push(`Question #${idx+1} has no wrong answers.`);
-        }
-      });
-
-      if(options.genId){
-        let id = 0;
-        return { questions: questions.map(q => ({ id: ++id, ...q })), errors };
-      }
-
-      return { questions, errors };
-    }
-
-    const mdMdBox = document.getElementById('md-md');
-    const mdConvertBtn = document.getElementById('md-convert');
-    const mdOut = document.getElementById('md-out');
-    const mdCopyBtn = document.getElementById('md-copy');
-    const mdDlBtn = document.getElementById('md-download');
-    const mdClearBtn = document.getElementById('md-clear');
-    const mdGenId = document.getElementById('md-genId');
-    const mdErrBox = document.getElementById('md-errors');
-    const mdFileInput = document.getElementById('md-fileInput');
-
-    mdFileInput.addEventListener('change', (e) => {
-      const file = e.target.files[0];
-      if (file) {
-        const reader = new FileReader();
-        reader.onload = (e) => mdMdBox.value = e.target.result;
-        reader.readAsText(file);
-      }
-    });
-
-    mdConvertBtn.addEventListener('click', ()=>{
-      mdErrBox.textContent = '';
-      const res = mdParseMarkdownToQuiz(mdMdBox.value || '', { genId: mdGenId.checked });
-      if(res.errors.length) mdErrBox.textContent = res.errors.join(' ');
-      mdOut.textContent = JSON.stringify(res.questions, null, 2);
-    });
-
-    mdCopyBtn.addEventListener('click', async ()=>{
-      try{ await navigator.clipboard.writeText(mdOut.textContent); alert('Copied'); }catch(e){ alert('Clipboard failed'); }
-    });
-
-    mdDlBtn.addEventListener('click', ()=>{
-      const data = mdOut.textContent || '[]';
-      const blob = new Blob([data], { type: 'application/json' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a'); a.href=url; a.download='quiz-from-md.json'; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
-    });
-
-    mdClearBtn.addEventListener('click', ()=>{ mdMdBox.value = ''; mdOut.textContent = '[]'; mdErrBox.textContent=''; });
-
-    // Initialize
-    document.addEventListener('DOMContentLoaded', () => {
-      new QuizCRUD();
-      waitForXLSX(() => {
-        new ExcelToJsonConverter();
-      });
-    });
-  </script>
+          <div class="excel-checkbox-option">
+            <input type="checkbox" id="excel-md-includeEmptyCells">
+            <label for="excel-md-includeEmptyCells">Include empty cells</label>
+          </div>
+        </div>
+        <div class="excel-option-group">
+          <div class="excel-select-group">
+            <label for="excel-md-numberFormat">Number Format:</label>
+            <select id="excel-md-numberFormat">
+              <option value="auto">Auto</option>
+              <option value="string">String</option>
+              <option value="number">Number</option>
+            </select>
+          </div>
+          <div class="excel-select-group">
+            <label for="excel-md-dateFormat">Date Format:</label>
+            <select id="excel-md-dateFormat">
+              <option value="string">String</option>
+              <option value="iso">ISO Date</option>
+              <option value="timestamp">Timestamp</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div id="excel-md-buttonGroup" class="excel-button-group" style="display: none;">
+        <button id="excel-md-convertBtn" class="excel-btn-convert">Convert to Markdown</button>
+        <button id="excel-md-resetBtn" class="excel-btn-reset">Reset</button>
+      </div>
+
+      <div id="excel-md-previewSection" class="excel-preview-section" style="display: none;">
+        <div class="excel-preview-title">Preview (first 5 rows)</div>
+        <table class="excel-preview-table">
+          <thead id="excel-md-previewHead"></thead>
+          <tbody id="excel-md-previewBody"></tbody>
+        </table>
+      </div>
+
+      <div id="excel-md-alertContainer"></div>
+
+      <div id="excel-md-outputSection" class="excel-output-section">
+        <div class="excel-output-title">
+          Markdown Output
+          <div class="excel-output-controls">
+            <button id="excel-md-copyBtn" class="excel-btn-copy">Copy</button>
+            <button id="excel-md-downloadBtn" class="excel-btn-download">Download</button>
+          </div>
+        </div>
+        <pre id="excel-md-outputBox"></pre>
+      </div>
+    </div>
+  </div>
+
+  <script src="quiz.js"></script>
+  <script src="excel.js"></script>
+  <script src="json.js"></script>
+  <script src="md.js"></script>
+  <script src="json-to-md.js"></script>
+  <script src="excel-to-md.js"></script>
+  <script src="main.js"></script>
 </body>
-</html></content>
+</html>
